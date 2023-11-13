@@ -1,125 +1,138 @@
-
-function obtenerStrDeUnidades(unidades) {
-    let stringDeUnidades;
-
-    if (unidades == 1) {
-        stringDeUnidades = "unidad"
-    } else {
-        stringDeUnidades = "unidades"
-    }
-    return stringDeUnidades;
-}
-
 function mayus(str) {
     return str[0].toUpperCase() + str.slice(1);
 }
 
-
-const productos = {
-    anillo: { 
-        stock: 150,
-        precio: 500
-    },
-    collar: { 
-        stock: 60,
-        precio: 1000
-    },
-    pulsera: { 
-        stock: 70,
-        precio: 700
-    },
-    aros: { 
-        stock: 100,
-        precio: 900
-    }
-}
-
-const iva = 0.21
-
-
-let carrito = {}
-
-
-let nombre = prompt("ingrese su nombre")
-
-
-while(nombre == null || nombre == ""){
-    alert("datos incorrectos")
-    nombre = prompt("ingrese su nombre")
-}
-alert(`bienvenido ${nombre}`)
-
-
-let productosOrdenados = []
-
-
-for (const p in productos){
-    productosOrdenados.push(p)
-}
-
-productosOrdenados = productosOrdenados.sort()
-
-
-
-while (true) {
-    let promptprod = "ingrese el producto deseado\n"
-
-    for (const p of productosOrdenados) {
-            if (productos[p].stock > 0) {
-                promptprod += `- ${mayus(p)}\n`
-            }
-    }
-
-    promptprod += "Para finalizar tu compra tocá enter"
-
-    let nombreDeProducto = prompt(promptprod).toLowerCase();
-
-
-    let unidades;
-
-
-    while (nombreDeProducto != "" && typeof productos[nombreDeProducto] === `undefined`) {
-        alert(`no tenemos ese producto`)
-        nombreDeProducto = prompt(promptprod)
-    }
-    if (nombreDeProducto === "") {
-        break
-    }
-
-    const producto = productos[nombreDeProducto]
-
-
-    unidades = Number(prompt(`cuantas unidades desea agregar al carrito? Stock disponible: ${producto.stock}`))
-    if(unidades <= producto.stock){
-        alert(`agregaste ${unidades} ${obtenerStrDeUnidades(unidades)} de ${mayus(nombreDeProducto)}`)
-        if (typeof carrito[nombreDeProducto] === `undefined`) {
-            carrito[nombreDeProducto] = unidades
-        }else{
-            carrito[nombreDeProducto] += unidades
+let productos;
+let productosGuardados = localStorage.getItem("productos");
+if (productosGuardados != null) {
+    productos = JSON.parse(productosGuardados);
+} else {
+    productos = {
+        anillo: { 
+            stock: 150,
+            precio: 500
+        },
+        collar: { 
+            stock: 60,
+            precio: 1000
+        },
+        pulsera: { 
+            stock: 70,
+            precio: 700
+        },
+        aros: { 
+            stock: 100,
+            precio: 900
         }
-        productos[nombreDeProducto].stock -= unidades
-    }else{
-        alert("no hay suficiente stock disponible")
+    };
+    localStorage.setItem("productos", JSON.stringify(productos))
+}
+
+
+
+const iva = 0.21;
+
+
+let carrito = {};
+
+let nombre = "";
+document.getElementById("nombre").addEventListener("change", (ev) => {
+    nombre = ev.target.value;
+})
+
+
+let productosOrdenados = [];
+for (const p in productos){
+    productosOrdenados.push(p);
+}
+productosOrdenados = productosOrdenados.sort();
+
+const listaDeProductos = document.getElementById("listaDeProductos");
+for (const p of productosOrdenados) {
+    const div = document.createElement("div")
+    div.id = `producto_${p}`
+    div.classList.add("productoDeLista")
+
+    const nombreProducto = document.createElement("p")
+    nombreProducto.textContent = `${mayus(p)}(\$${productos[p].precio})`
+    
+    const valorProducto = document.createElement("p")
+    valorProducto.textContent = "$0"
+
+    const cantidadProducto = document.createElement("input");
+    cantidadProducto.onchange = (ev) => {
+        let cantidad = Number(ev.target.value);
+
+        if (cantidad > 0) {
+            if (cantidad > productos[p].stock) {
+                cantidad = productos[p].stock;
+            }
+            carrito[p] = cantidad;
+            valorProducto.textContent = `\$${cantidad*productos[p].precio}`
+            ev.target.value = cantidad;
+        } else{
+            carrito[p] = 0;
+            valorProducto.textContent = "$0"
+            ev.target.value = "0";
+        }
     }
+    cantidadProducto.value = "0"
+    cantidadProducto.type = "number"
+
+    div.append(cantidadProducto,nombreProducto,valorProducto);
+    listaDeProductos.append(div);
 }
 
 
-let mostrarCarrito = "Realizaste la compra con éxito. Acá está tu ticket:\n"
 
-let total = 0
+const compra = document.getElementById("compra")
+compra.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    
+    if (nombre === "") {
+        alert("El campo nombre es requerido");
+        return;
+    }
 
-for (const nombreDeProducto in carrito) {
-    let precio = carrito[nombreDeProducto] * productos[nombreDeProducto].precio
+    compra.classList.add("oculto")
+    const recibo = document.getElementById("recibo")
+    recibo.classList.remove("oculto")
 
-    precio += precio*iva
+    const mensajeCompra = document.getElementById("mensajeDeCompra")
+    mensajeCompra.textContent = `Gracias por su compra ${nombre}`
 
-    mostrarCarrito += `- ${carrito[nombreDeProducto]} ${mayus(nombreDeProducto)} $${precio}\n`
+    const productosComprados = document.getElementById("productosComprados")
+    let total = 0;
+    for (const p in carrito) {
+        if (carrito[p] === 0) {
+            continue;
+        }
+        const cantidad = document.createElement("td")
+        cantidad.textContent = `${carrito[p]} u.`
 
-    total += precio
-}
+        const producto = document.createElement("td")
+        producto.textContent = mayus(p)
 
-mostrarCarrito += `Total: $${total}\n Gracias por tu compra.`
+        const precio = document.createElement("td")
+        precio.textContent = `\$${carrito[p]*productos[p].precio}`
+        total = total + carrito[p]*productos[p].precio
 
-alert(mostrarCarrito)
+        const agrupar = document.createElement("tr")
+        agrupar.append(cantidad, producto, precio)
+        productosComprados.append(agrupar)
+
+        productos[p].stock = productos[p].stock - carrito[p];
+    }
+    const filaTotal = document.createElement("tr")
+    const textoTotal = document.createElement("td")
+    textoTotal.textContent = "Total"
+    const valorTotal = document.createElement("td")
+    valorTotal.textContent = `\$${total}`
+    filaTotal.append(document.createElement("td"), textoTotal, valorTotal)
+    productosComprados.append(filaTotal)
+
+    localStorage.setItem("productos", JSON.stringify(productos));
+})
+
 
 

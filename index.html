@@ -4,8 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        .productoDeLista{
+            display: flex;
+        }
+        .oculto {
+            display: none;
+        }
+    </style>
 </head>
 <body>
+    <form id="compra">
+        <input id="nombre" type="text">
+        
+        <div id="listaDeProductos"></div>
+        <button id="comprar" type="submit">Comprar</button>
+    </form>
+    
+    <div id="recibo" class="oculto">
+        <div id="mensajeDeCompra"></div>
+        <table id="productosComprados"></table>
+    </div>    
+    
     <script src="./main.js"></script>
 </body>
 </html>
