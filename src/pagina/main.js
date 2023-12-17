@@ -4,11 +4,8 @@ function mayus(str) {
 
 async function tienda() {
   let productos;
-  let productosGuardados = localStorage.getItem("productos");
-  if (productosGuardados != null) {
-    productos = JSON.parse(productosGuardados);
-  } else {
-    let res = await fetch("./stock.json");
+
+    let res = await fetch("/stock");
     if (res.ok) {
         productos = await res.json()
     } else {
@@ -20,9 +17,6 @@ async function tienda() {
           }).showToast();
           return;
     }
-
-    localStorage.setItem("productos", JSON.stringify(productos));
-  }
 
   const iva = 0.21;
 
@@ -93,9 +87,6 @@ async function tienda() {
     const recibo = document.getElementById("recibo");
     recibo.classList.remove("oculto");
 
-    const mensajeCompra = document.getElementById("mensajeDeCompra");
-    mensajeCompra.textContent = `Gracias por su compra ${nombre}`;
-
     const productosComprados = document.getElementById("productosComprados");
     let total = 0;
     for (const p in carrito) {
@@ -115,8 +106,6 @@ async function tienda() {
       const agrupar = document.createElement("tr");
       agrupar.append(cantidad, producto, precio);
       productosComprados.append(agrupar);
-
-      productos[p].stock = productos[p].stock - carrito[p];
     }
     const filaTotal = document.createElement("tr");
     const textoTotal = document.createElement("td");
@@ -126,7 +115,43 @@ async function tienda() {
     filaTotal.append(document.createElement("td"), textoTotal, valorTotal);
     productosComprados.append(filaTotal);
 
-    localStorage.setItem("productos", JSON.stringify(productos));
+  });
+
+  const confirmar = document.getElementById('confirmar');
+  confirmar.addEventListener("click", ()=>{
+    const mensajeCompra = document.getElementById("mensajeDeCompra");
+    mensajeCompra.classList.remove('oculto');
+    mensajeCompra.textContent = `Gracias por su compra ${nombre}`;
+
+    const mensajeConfirmacion = document.getElementById("mensajeConfirmacion");
+    mensajeConfirmacion.classList.add('oculto');
+    const cancelarConfirmar = document.getElementById("cancelarConfirmar");
+    cancelarConfirmar.classList.add('oculto');
+
+    for (const p in carrito) {
+      if (carrito[p] === 0) {
+        continue;
+      }
+      productos[p].stock = productos[p].stock - carrito[p];
+    }
+
+    
+    fetch("/stock", {
+      method: 'POST',
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify(productos)
+    });
+  });
+
+  const cancelar = document.getElementById("cancelar");
+  cancelar.addEventListener('click', ( )=>{
+    compra.classList.remove("oculto");
+    const recibo = document.getElementById("recibo");
+    recibo.classList.add("oculto");
+    const productosComprados = document.getElementById("productosComprados");
+    productosComprados.innerHTML = "";
   });
 }
 

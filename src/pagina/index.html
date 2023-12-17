@@ -9,7 +9,10 @@
             display: flex;
         }
         .oculto {
-            display: none;
+            display: none !important;
+        }
+        .botones{
+            display: flex;
         }
     </style>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
@@ -20,12 +23,17 @@
         <input id="nombre" type="text">
         
         <div id="listaDeProductos"></div>
-        <button id="comprar" type="submit">Comprar</button>
+        <button id="comprar" type="submit">Agregar al carrito</button>
     </form>
-    
+
     <div id="recibo" class="oculto">
-        <div id="mensajeDeCompra"></div>
+        <p id="mensajeConfirmacion">¿Está seguro que desea comprar los siguiente productos?</p>
+        <div id="mensajeDeCompra" class="oculto"></div>
         <table id="productosComprados"></table>
+        <div id="cancelarConfirmar" class="botones">
+            <button id="cancelar">cancelar</button>
+            <button id="confirmar">Confirmar</button>
+        </div>
     </div>    
     
     <script src="./main.js"></script>

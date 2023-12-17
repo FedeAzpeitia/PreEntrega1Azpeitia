@@ -1,18 +1,6 @@
 {
-  "anillo": {
-    "stock": 150,
-    "precio": 500
-  },
-  "collar": {
-    "stock": 60,
-    "precio": 1000
-  },
-  "pulsera": {
-    "stock": 70,
-    "precio": 700
-  },
-  "aros": {
-    "stock": 100,
-    "precio": 900
-  }
+  "anillo": { "stock": 75, "precio": 350 },
+  "collar": { "stock": 50, "precio": 1000 },
+  "pulsera": { "stock": 60, "precio": 700 },
+  "aros": { "stock": 100, "precio": 900 }
 }
